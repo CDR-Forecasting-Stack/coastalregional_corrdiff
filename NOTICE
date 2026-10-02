@@ -1,0 +1,14 @@
+coastalregional_corrdiff
+Copyright (c) 2026 Sadegh Ranjbar, Lucas Gloege, Noah Planavsky, Elizabeth Yankovsky, Yale University
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Files under training/ (the dataset class physicsnemo/regional_hrrr.py, the PhysicsNeMo patch, and the Hydra
+configuration files) and the model-side helper common/ccd_model.py are derived from NVIDIA PhysicsNeMo
+(https://github.com/NVIDIA/physicsnemo, Copyright NVIDIA CORPORATION & AFFILIATES, Apache License 2.0) and were
+adapted for the HRRR dataset used here. The CorrDiff model architecture, EDM preconditioning and sampler used to
+train and run the models are NVIDIA's; this repository is an independent work and is not affiliated with or
+endorsed by NVIDIA.
+
+Data: HRRR (NOAA) via the public cloud archive gs://high-resolution-rapid-refresh; ERA5 (ECMWF/Copernicus) via the
+public ARCO ERA5 Zarr store. Please follow the terms of those providers when using or redistributing derived data.

@@ -1,0 +1,96 @@
+diff --git a/examples/weather/corrdiff/datasets/dataset.py b/examples/weather/corrdiff/datasets/dataset.py
+index e0922330..106b6a26 100644
+--- a/examples/weather/corrdiff/datasets/dataset.py
++++ b/examples/weather/corrdiff/datasets/dataset.py
+@@ -24,13 +24,14 @@ import torch
+ from physicsnemo.diffusion.utils import InfiniteSampler
+ from physicsnemo.distributed import DistributedManager
+ 
+-from datasets import base, cwb, hrrrmini, gefs_hrrr
++from datasets import base, cwb, hrrrmini, regional_hrrr, gefs_hrrr
+ 
+ 
+ # this maps all known dataset types to the corresponding init function
+ known_datasets = {
+     "cwb": cwb.get_zarr_dataset,
+     "hrrr_mini": hrrrmini.HRRRMiniDataset,
++    "regional_hrrr": regional_hrrr.RegionalHRRRDataset,
+     "gefs_hrrr": gefs_hrrr.HrrrForecastGEFSDataset,
+ }
+ 
+diff --git a/examples/weather/corrdiff/generate.py b/examples/weather/corrdiff/generate.py
+index a27dd8fe..39bb6500 100644
+--- a/examples/weather/corrdiff/generate.py
++++ b/examples/weather/corrdiff/generate.py
+@@ -251,6 +251,7 @@ def main(cfg: DictConfig) -> None:
+             # (1, C, H, W)
+             img_lr = image_lr.to(memory_format=torch.channels_last)
+ 
++            image_reg = None
+             if net_reg:
+                 with nvtx.annotate("regression_model", color="yellow"):
+                     image_reg = regression_step(
+@@ -423,6 +424,7 @@ def main(cfg: DictConfig) -> None:
+                                 image_lr.cpu(),
+                                 time_index,
+                                 dataset_index,
++                                image_reg.cpu() if image_reg is not None else None,
+                             )
+                         )
+                     else:
+@@ -435,6 +437,7 @@ def main(cfg: DictConfig) -> None:
+                             image_lr.cpu(),
+                             time_index,
+                             dataset_index,
++                            image_reg.cpu() if image_reg is not None else None,
+                         )
+             end.record()
+             end.synchronize()
+diff --git a/examples/weather/corrdiff/helpers/generate_helpers.py b/examples/weather/corrdiff/helpers/generate_helpers.py
+index 1f956330..59d77285 100644
+--- a/examples/weather/corrdiff/helpers/generate_helpers.py
++++ b/examples/weather/corrdiff/helpers/generate_helpers.py
+@@ -53,6 +53,7 @@ def save_images(
+     image_lr,
+     time_index,
+     dataset_index,
++    image_reg=None,
+ ):
+     """
+     Saves inferencing result along with the baseline
+@@ -103,6 +104,8 @@ def save_images(
+             truth = image_tar2[0, channel_idx]
+ 
+             writer.write_truth(channel_name, time_index, truth)
++            if image_reg is not None:
++                writer.write_regression(channel_name, time_index, dataset.denormalize_output(image_reg)[0, channel_idx])
+             writer.write_prediction(
+                 channel_name, time_index, idx, image_out2[0, channel_idx]
+             )
+@@ -157,6 +160,7 @@ class NetCDFWriter:
+ 
+         self.truth_group = f.createGroup("truth")
+         self.prediction_group = f.createGroup("prediction")
++        self.regression_group = f.createGroup("regression")
+         self.input_group = f.createGroup("input")
+ 
+         for variable in output_channels:
+@@ -165,6 +169,7 @@ class NetCDFWriter:
+             self.prediction_group.createVariable(
+                 name, "f", dimensions=("ensemble", "time", "y", "x")
+             )
++            self.regression_group.createVariable(name, "f", dimensions=("time", "y", "x"))
+ 
+         # setup input data in netCDF
+ 
+@@ -180,6 +185,10 @@ class NetCDFWriter:
+         """Write ground truth data to NetCDF file."""
+         self.truth_group[channel_name][time_index] = val
+ 
++    def write_regression(self, channel_name, time_index, val):
++        """Write regression (UNet mean) data to NetCDF file."""
++        self.regression_group[channel_name][time_index] = val
++
+     def write_prediction(self, channel_name, time_index, ensemble_index, val):
+         """Write prediction data to NetCDF file."""
+         self.prediction_group[channel_name][ensemble_index, time_index] = val

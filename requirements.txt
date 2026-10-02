@@ -1,0 +1,23 @@
+# pip alternative to environment.yml. xESMF needs ESMF/esmpy, which is easiest to obtain from conda-forge
+# (conda install -c conda-forge xesmf esmpy); everything else installs with pip.
+numpy
+scipy
+pandas
+xarray
+netCDF4
+h5py
+dask
+zarr>=3
+gcsfs
+fsspec
+cfgrib
+eccodes
+xesmf
+numba
+matplotlib
+pytest
+torch
+nvidia-physicsnemo
+hydra-core
+omegaconf
+wandb

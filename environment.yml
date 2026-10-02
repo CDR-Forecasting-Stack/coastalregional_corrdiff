@@ -1,0 +1,29 @@
+name: coastalregional
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - pandas
+  - xarray
+  - netcdf4
+  - h5py
+  - dask
+  - zarr>=3
+  - gcsfs
+  - fsspec
+  - cfgrib
+  - eccodes
+  - xesmf
+  - esmpy
+  - numba
+  - matplotlib
+  - pytest
+  - pip
+  - pip:
+      - torch
+      - nvidia-physicsnemo
+      - hydra-core
+      - omegaconf
+      - wandb

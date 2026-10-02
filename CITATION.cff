@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+title: "coastalregional_corrdiff: kilometer-scale downscaling for coastal ocean areas with CorrDiff"
+type: software
+license: Apache-2.0
+authors:
+  - family-names: Ranjbar
+    given-names: Sadegh
+    affiliation: "Department of Earth and Planetary Sciences, Yale University"
+  - family-names: Gloege
+    given-names: Lucas
+    affiliation: "Department of Earth and Planetary Sciences, Yale University"
+  - family-names: Planavsky
+    given-names: Noah
+    affiliation: "Department of Earth and Planetary Sciences, Yale University"
+  - family-names: Yankovsky
+    given-names: Elizabeth
+    affiliation: "Department of Earth and Planetary Sciences, Yale University"
+keywords: [downscaling, diffusion model, CorrDiff, HRRR, ERA5, coastal ocean, machine learning]
+references:
+  - type: software
+    title: "NVIDIA PhysicsNeMo"
+    url: "https://github.com/NVIDIA/physicsnemo"
+    authors:
+      - name: "NVIDIA"

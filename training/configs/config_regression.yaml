@@ -1,0 +1,38 @@
+hydra:
+    job:
+          chdir: false
+          name: ccd_regression
+    run:
+          dir: ./output/${hydra:job.name}
+    searchpath:
+          - pkg://conf/base
+
+defaults:
+    - dataset: regional_hrrr
+    - model: regression
+    - model_size: normal
+    - training: ${model}
+
+# Coastal regional CorrDiff: coarse (Gaussian + xESMF) HRRR -> 3 km HRRR.
+# Data and checkpoint locations come from the environment (see training/README.md):
+#   CCD_DATA_DIR  directory with regional_train.nc and stats.json (built by data_pipeline/)
+#   CCD_CKPT_DIR  where checkpoints are written
+dataset:
+    data_path: ${oc.env:CCD_DATA_DIR}/regional_train.nc
+    stats_path: ${oc.env:CCD_DATA_DIR}/stats.json
+    output_variables: ['2t', '10u', '10v', 'tp', 'ssrd', 'strd', 'sp', 'q']
+
+training:
+    hp:
+        training_duration: 5000000
+        batch_size_per_gpu: 40
+    io:
+        print_progress_freq: 10000
+        save_checkpoint_freq: 50000
+        save_n_recent_checkpoints: 3
+        checkpoint_dir: ${oc.env:CCD_CKPT_DIR}/regression
+
+wandb:
+    mode: offline
+    results_dir: "./wandb"
+    watch_model: false
